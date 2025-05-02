@@ -40,7 +40,7 @@ void *customer_thread(void *params){
     int front = my_params->table_queue.front;
     my_params->table_queue.arr[rear] = my_params->current_customer;
     my_params->current_customer++;
-    printf("Customer %d is seated at Table %d\n", my_params->current_customer, my_params->table_queue.arr[front]);
+    printf("Customer %d is seated at Table %d\n", my_params->current_customer, my_params->table_queue.rear);
 }
 
 void *waiters_thread(void *params){
