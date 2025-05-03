@@ -37,3 +37,7 @@
 
 # PDF
 *.pdf
+
+# Cache and build folder
+.cache/
+build/
