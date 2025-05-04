@@ -22,7 +22,6 @@ unsigned char **read_pgm(const char *filename, int *width, int *height) {
     int max_value;
     fscanf(fp, "%d", &max_value);
 
-    int abc;
     unsigned char **image =
         (unsigned char **)malloc((*height) * sizeof(unsigned char *));
     for (int i = 0; i < *height; i++) {
