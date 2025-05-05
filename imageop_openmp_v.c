@@ -7,7 +7,6 @@ unsigned char** blur_openmp(unsigned char** image, int* width, int* height) {
 
     unsigned char **image_new =
         (unsigned char **)calloc((*height), sizeof(unsigned char *));
-    printf("width:%d.height%d\n", *width, *height);
 
     // Initialize the array
     #pragma omp parallel for shared(image_new)
@@ -29,7 +28,6 @@ unsigned char** blur_openmp(unsigned char** image, int* width, int* height) {
 unsigned char** sharpen_openmp(unsigned char** image, int* width, int* height) {
     unsigned char **image_new =
         (unsigned char **)calloc((*height), sizeof(unsigned char *));
-    printf("width:%d.height%d\n", *width, *height);
 
     // Initialize the array
     #pragma omp parallel for shared(image_new)

@@ -37,7 +37,6 @@ unsigned char **read_pgm(const char *filename, int *width, int *height) {
 }
 
 unsigned char **read_pgm_extraedges(const char *filename, int *width, int *height) {
-    printf("width:%d.height%d\n", *width, *height);
     FILE *fp = fopen(filename, "r");
     if (!fp) {
         perror("Error opening file");
