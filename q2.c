@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
 
 #include "image_io.h"
 #include "imageop_openmp_v.h"
+#include "imageop_pthread_v.h"
 void startTimer(clock_t *time);
 void stopTimer(clock_t *time);
 
@@ -12,6 +12,11 @@ int main() {
     int width[] = {1024, 256, 10};
     int height[] = {768, 256, 10};
     clock_t timer;
+
+    printf("Enter the number of threads:");
+    int num_thread;
+    fscanf(stdin, "%d", &num_thread);
+
     printf("Reading files\n");
     startTimer(&timer);
 
@@ -45,13 +50,48 @@ int main() {
     stopTimer(&timer);
 
     printf("Small file\n");
+    printf("Blur operation\n");
     startTimer(&timer);
     write_pgm("small_blur_open.pgm", blur_openmp(small_img, width + 2, height + 2), width[2], height[2]);
     stopTimer(&timer);
 
     startTimer(&timer);
-    printf("Blur operation\n");
     write_pgm("small_sharpen_open.pgm", sharpen_openmp(small_img, width + 2, height + 2), width[2], height[2]);
+    printf("Sharpen operation\n");
+    stopTimer(&timer);
+
+
+    printf("pthread ----\n");
+    printf("Large file\n");
+    startTimer(&timer);
+    printf("Blur operation\n");
+    write_pgm("large_blur_open.pgm", blur_pthread(large_img, width + 0, height + 0, num_thread), width[0], height[0]);
+    stopTimer(&timer);
+
+    startTimer(&timer);
+    printf("Sharpen operation\n");
+    write_pgm("large_sharpen_open.pgm", sharpen_pthread(large_img, width + 0, height + 0, num_thread), width[0], height[0]);
+    stopTimer(&timer);
+
+    printf("Medium file\n");
+    startTimer(&timer);
+    printf("Blur operation\n");
+    write_pgm("medium_blur_open.pgm",   blur_pthread(med_img, width + 1, height + 1, num_thread), width[1], height[1]);
+    stopTimer(&timer);
+
+    startTimer(&timer);
+    printf("Sharpen operation\n");
+    write_pgm("medium_sharpen_open.pgm", sharpen_pthread(med_img, width + 1, height + 1, num_thread), width[1], height[1]);
+    stopTimer(&timer);
+
+    printf("Small file\n");
+    printf("Blur operation\n");
+    startTimer(&timer);
+    write_pgm("small_blur_open.pgm", blur_pthread(small_img, width + 2, height + 2, num_thread), width[2], height[2]);
+    stopTimer(&timer);
+
+    startTimer(&timer);
+    write_pgm("small_sharpen_open.pgm", sharpen_pthread(small_img, width + 2, height + 2, num_thread), width[2], height[2]);
     printf("Sharpen operation\n");
     stopTimer(&timer);
 

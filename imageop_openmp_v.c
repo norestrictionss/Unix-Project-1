@@ -1,15 +1,11 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <omp.h>
 #include "imageop_openmp_v.h"
-unsigned char** blur_openmp(unsigned char** image, int* width, int* height) {
-
+unsigned char** blur_openmp(unsigned char** image, const int* width, const int* height) {
     unsigned char **image_new =
         (unsigned char **)calloc((*height), sizeof(unsigned char *));
 
     // Initialize the array
-    #pragma omp parallel for shared(image_new)
     for (int i = 0; i < *height; i++)
         image_new[i] = (unsigned char *)calloc((*width), sizeof(unsigned char));
 
@@ -25,12 +21,11 @@ unsigned char** blur_openmp(unsigned char** image, int* width, int* height) {
 
     return image_new;
 }
-unsigned char** sharpen_openmp(unsigned char** image, int* width, int* height) {
+unsigned char** sharpen_openmp(unsigned char** image, const int* width, const int* height) {
     unsigned char **image_new =
         (unsigned char **)calloc((*height), sizeof(unsigned char *));
 
     // Initialize the array
-    #pragma omp parallel for shared(image_new)
     for (int i = 0; i < *height; i++)
         image_new[i] = (unsigned char *)calloc((*width), sizeof(unsigned char));
 
@@ -41,9 +36,9 @@ unsigned char** sharpen_openmp(unsigned char** image, int* width, int* height) {
             int temp = (0 - image[i - 1][j] + 0 +
                         - image[i][j - 1] + 5 *  image[i][j] - image[i][j + 1] +
                         0 - image[i + 1][j] + 0);
-            if(temp < 0)
+            if (temp < 0)
                 temp = 0;
-            else if(temp > 255)
+            else if (temp > 255)
                 temp = 255;
             image_new[i - 1][j - 1] = temp;
         }
