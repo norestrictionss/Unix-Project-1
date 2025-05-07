@@ -4,14 +4,14 @@
 #include <string.h> 
 #include <unistd.h> 
 #include <semaphore.h>
-#define MAX_SIZE 1000
+#define MAX_SIZE 10000
 
 
 
 sem_t table_sem;
 sem_t waiter_sem;
 sem_t cooks_sem;
-pthread_mutex_t lock, lock2, lock3; 
+pthread_mutex_t lock, lock2, lock3, lock4, lock5; 
 
 struct Queue {
     int arr[MAX_SIZE];
@@ -23,7 +23,7 @@ struct Queue kitchen_queue;
 struct Queue ready_meals_queue;
 struct Queue customer_queue;
 struct Queue table_queue;
-
+int remaining_customers;
 
 
 
@@ -58,16 +58,18 @@ void *customer_thread(void *params){
     printf("Customer %d is seated at Table %d\n", current_customer, current_table);
     while(ready_meals_queue.arr[ready_meals_queue.front-1]!=current_customer);
     printf("Customer %d finishes eating and leaves Table %d\n", current_customer, current_table);
+    pthread_mutex_lock(&lock4);
+    remaining_customers--;
     table_queue.rear++;
     table_queue.arr[table_queue.rear] = current_table;
-    
+    pthread_mutex_unlock(&lock4);
     sem_post(&table_sem);
 
 
 }
 
 void *waiters_thread(void *params){
-    while(customer_queue.arr[customer_queue.front]!=0){
+    while(remaining_customers!=0){
         struct Params *my_params = (struct Params*) params;
         pthread_mutex_lock(&lock2);
         int current_customer = customer_queue.arr[customer_queue.front];
@@ -81,7 +83,9 @@ void *waiters_thread(void *params){
             printf("Waiter %d takes order from Customer %d\n", current_waiter, current_customer);
             while(ready_meals_queue.arr[ready_meals_queue.front]!=current_customer);
             printf("Waiter %d serves meal to Customer %d\n", current_waiter, current_customer);
+            pthread_mutex_lock(&lock5);
             ready_meals_queue.front++;
+            pthread_mutex_unlock(&lock5);
             
         }
         else pthread_mutex_unlock(&lock2);
@@ -90,7 +94,7 @@ void *waiters_thread(void *params){
 
 void *cooks_thread(void *params){
 
-    while(customer_queue.arr[customer_queue.front]!=0){
+    while(remaining_customers!=0){
         struct Params *my_params = (struct Params*) params;
         int current_cooks = my_params->current_cooks;
         pthread_mutex_lock(&lock3);
@@ -104,6 +108,7 @@ void *cooks_thread(void *params){
         }
         pthread_mutex_unlock(&lock3);
     }
+    
 }
 
 
@@ -124,16 +129,24 @@ int main(int argc, char **argv){
             return 1; 
         } 
         if (pthread_mutex_init(&lock3, NULL) != 0) { 
-            printf("\n mutex 2 init has failed\n"); 
+            printf("\n mutex 3 init has failed\n"); 
             return 1; 
         } 
+        if (pthread_mutex_init(&lock4, NULL) != 0) { 
+            printf("\n mutex 4 init has failed\n"); 
+            return 1; 
+        }
+        if (pthread_mutex_init(&lock5, NULL) != 0) { 
+            printf("\n mutex 5 init has failed\n"); 
+            return 1; 
+        }
 
 
         int table_count = atoi(argv[1]);
         int waiter_count = atoi(argv[2]);
         int cooks_count = atoi(argv[3]);
         int customer_count = atoi(argv[4]);
-
+        remaining_customers = customer_count;
         pthread_t customer_threads[customer_count];
         pthread_t waiter_threads[waiter_count];
         pthread_t cooks_threads[cooks_count];
