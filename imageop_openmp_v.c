@@ -1,7 +1,8 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
 #include "imageop_openmp_v.h"
-unsigned char** blur_openmp(unsigned char** image, const int* width, const int* height) {
+unsigned char** blur_openmp(unsigned char** image, const int* width, const int* height, int num_threads) {
     unsigned char **image_new =
         (unsigned char **)calloc((*height), sizeof(unsigned char *));
 
@@ -9,6 +10,7 @@ unsigned char** blur_openmp(unsigned char** image, const int* width, const int* 
     for (int i = 0; i < *height; i++)
         image_new[i] = (unsigned char *)calloc((*width), sizeof(unsigned char));
 
+    omp_set_num_threads(num_threads);
     // Calculate the middle part
     #pragma omp parallel for firstprivate(image_new, image)
     for (int i = 1; i < *height + 1; i++) {
@@ -21,7 +23,7 @@ unsigned char** blur_openmp(unsigned char** image, const int* width, const int* 
 
     return image_new;
 }
-unsigned char** sharpen_openmp(unsigned char** image, const int* width, const int* height) {
+unsigned char** sharpen_openmp(unsigned char** image, const int* width, const int* height, int num_threads) {
     unsigned char **image_new =
         (unsigned char **)calloc((*height), sizeof(unsigned char *));
 
@@ -29,6 +31,7 @@ unsigned char** sharpen_openmp(unsigned char** image, const int* width, const in
     for (int i = 0; i < *height; i++)
         image_new[i] = (unsigned char *)calloc((*width), sizeof(unsigned char));
 
+    omp_set_num_threads(num_threads);
     // Calculate the middle part
     #pragma omp parallel for firstprivate(image_new, image)
     for (int i = 1; i < *height + 1; i++) {

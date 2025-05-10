@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
-project(unixproject)
+project(unixproject C)
 add_executable(q1.out q1)
 add_executable(q2.out q2.c image_io.c imageop_openmp_v.c imageop_pthread_v.c)
+find_package(OpenMP)
+target_link_libraries(q2.out PRIVATE OpenMP::OpenMP_C)
