@@ -8,7 +8,7 @@ void startTimer(clock_t *time);
 void stopTimer(clock_t *time);
 
 int main() {
-    unsigned char **large_img, **med_img, **small_img;
+    unsigned char **large_img, **med_img, **small_img, **result_img;
     int width[] = {1024, 256, 10};
     int height[] = {768, 256, 10};
     clock_t timer;
@@ -18,7 +18,6 @@ int main() {
     fscanf(stdin, "%d", &num_thread);
 
     printf("Reading files\n");
-    startTimer(&timer);
 
     large_img = read_pgm_extraedges("input/large_1024x768.pgm", width + 0, height + 0);
     med_img = read_pgm_extraedges("input/medium_256x256.pgm", width + 1, height + 1);
@@ -30,34 +29,46 @@ int main() {
     printf("Large file\n");
     startTimer(&timer);
     printf("Blur operation\n");
-    write_pgm("large_blur_open.pgm", blur_openmp(large_img, width + 0, height + 0), width[0], height[0]);
+    result_img = blur_openmp(large_img, width + 0, height + 0);
     stopTimer(&timer);
+    write_pgm("large_blur_open.pgm", result_img, width[0], height[0]);
+    free_image(result_img, height[0]);
 
     startTimer(&timer);
     printf("Sharpen operation\n");
-    write_pgm("large_sharpen_open.pgm", sharpen_openmp(large_img, width + 0, height + 0), width[0], height[0]);
+    result_img = sharpen_openmp(large_img, width + 0, height + 0);
     stopTimer(&timer);
+    write_pgm("large_sharpen_open.pgm", result_img, width[0], height[0]);
+    free_image(result_img, height[0]);
 
     printf("Medium file\n");
     startTimer(&timer);
     printf("Blur operation\n");
-    write_pgm("medium_blur_open.pgm",   blur_openmp(med_img, width + 1, height + 1), width[1], height[1]);
+    result_img = blur_openmp(med_img, width + 1, height + 1);
     stopTimer(&timer);
+    write_pgm("medium_blur_open.pgm", result_img, width[1], height[1]);
+    free_image(result_img, height[1]);
 
     startTimer(&timer);
     printf("Sharpen operation\n");
-    write_pgm("medium_sharpen_open.pgm", sharpen_openmp(med_img, width + 1, height + 1), width[1], height[1]);
+    result_img = sharpen_openmp(med_img, width + 1, height + 1);
     stopTimer(&timer);
+    write_pgm("medium_sharpen_open.pgm", result_img, width[1], height[1]);
+    free_image(result_img, height[1]);
 
     printf("Small file\n");
     printf("Blur operation\n");
     startTimer(&timer);
-    write_pgm("small_blur_open.pgm", blur_openmp(small_img, width + 2, height + 2), width[2], height[2]);
+    result_img = blur_openmp(small_img, width + 2, height + 2);
     stopTimer(&timer);
+    write_pgm("small_blur_open.pgm", result_img, width[2], height[2]);
+    free_image(result_img, height[2]);
 
     startTimer(&timer);
-    write_pgm("small_sharpen_open.pgm", sharpen_openmp(small_img, width + 2, height + 2), width[2], height[2]);
+    result_img = sharpen_openmp(small_img, width + 2, height + 2);
     printf("Sharpen operation\n");
+    write_pgm("small_sharpen_open.pgm", result_img, width[2], height[2]);
+    free_image(result_img, height[2]);
     stopTimer(&timer);
 
 
@@ -65,34 +76,46 @@ int main() {
     printf("Large file\n");
     startTimer(&timer);
     printf("Blur operation\n");
-    write_pgm("large_blur_open.pgm", blur_pthread(large_img, width + 0, height + 0, num_thread), width[0], height[0]);
+    result_img = blur_pthread(large_img, width + 0, height + 0, num_thread);
     stopTimer(&timer);
+    write_pgm("large_blur_pthread.pgm", result_img, width[0], height[0]);
+    free_image(result_img, height[0]);
 
     startTimer(&timer);
     printf("Sharpen operation\n");
-    write_pgm("large_sharpen_open.pgm", sharpen_pthread(large_img, width + 0, height + 0, num_thread), width[0], height[0]);
+    result_img = sharpen_pthread(large_img, width + 0, height + 0, num_thread);
     stopTimer(&timer);
+    write_pgm("large_sharpen_pthread.pgm", result_img, width[0], height[0]);
+    free_image(result_img, height[0]);
 
     printf("Medium file\n");
     startTimer(&timer);
     printf("Blur operation\n");
-    write_pgm("medium_blur_open.pgm",   blur_pthread(med_img, width + 1, height + 1, num_thread), width[1], height[1]);
+    result_img = blur_pthread(med_img, width + 1, height + 1, num_thread);
     stopTimer(&timer);
+    write_pgm("medium_blur_pthread.pgm", result_img, width[1], height[1]);
+    free_image(result_img, height[1]);
 
     startTimer(&timer);
     printf("Sharpen operation\n");
-    write_pgm("medium_sharpen_open.pgm", sharpen_pthread(med_img, width + 1, height + 1, num_thread), width[1], height[1]);
+    result_img = sharpen_pthread(med_img, width + 1, height + 1, num_thread);
     stopTimer(&timer);
+    write_pgm("medium_sharpen_pthread.pgm", result_img, width[1], height[1]);
+    free_image(result_img, height[1]);
 
     printf("Small file\n");
     printf("Blur operation\n");
     startTimer(&timer);
-    write_pgm("small_blur_open.pgm", blur_pthread(small_img, width + 2, height + 2, num_thread), width[2], height[2]);
+    result_img = blur_pthread(small_img, width + 2, height + 2, num_thread);
     stopTimer(&timer);
+    write_pgm("small_blur_pthread.pgm", result_img, width[2], height[2]);
+    free_image(result_img, height[2]);
 
     startTimer(&timer);
-    write_pgm("small_sharpen_open.pgm", sharpen_pthread(small_img, width + 2, height + 2, num_thread), width[2], height[2]);
+    result_img = sharpen_pthread(small_img, width + 2, height + 2, num_thread);
     printf("Sharpen operation\n");
+    write_pgm("small_sharpen_pthread.pgm", result_img, width[2], height[2]);
+    free_image(result_img, height[2]);
     stopTimer(&timer);
 
     return 0;
