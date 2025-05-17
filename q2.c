@@ -1,19 +1,25 @@
+#include <bits/types/struct_timeval.h>
+#include <omp.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include <sys/time.h>
 
 #include "image_io.h"
 #include "imageop_openmp_v.h"
-void startTimer(clock_t *time);
-void stopTimer(clock_t *time);
+#include "imageop_pthread_v.h"
+void startTimer(double *time);
+void stopTimer(double *time);
 
 int main() {
-    unsigned char **large_img, **med_img, **small_img;
+    unsigned char **large_img, **med_img, **small_img, **result_img;
     int width[] = {1024, 256, 10};
     int height[] = {768, 256, 10};
-    clock_t timer;
+    double timer;
+
+    printf("Enter the number of threads:");
+    int num_thread;
+    fscanf(stdin, "%d", &num_thread);
+
     printf("Reading files\n");
-    startTimer(&timer);
 
     large_img = read_pgm_extraedges("input/large_1024x768.pgm", width + 0, height + 0);
     med_img = read_pgm_extraedges("input/medium_256x256.pgm", width + 1, height + 1);
@@ -25,42 +31,125 @@ int main() {
     printf("Large file\n");
     startTimer(&timer);
     printf("Blur operation\n");
-    write_pgm("large_blur_open.pgm", blur_openmp(large_img, width + 0, height + 0), width[0], height[0]);
+    result_img = blur_openmp(large_img, width + 0, height + 0, num_thread);
+    stopTimer(&timer);
+    write_pgm("large_blur_open.pgm", result_img, width[0], height[0]);
+    free_image(result_img, height[0]);
+    printf("Done writing\n");
     stopTimer(&timer);
 
     startTimer(&timer);
     printf("Sharpen operation\n");
-    write_pgm("large_sharpen_open.pgm", sharpen_openmp(large_img, width + 0, height + 0), width[0], height[0]);
+    result_img = sharpen_openmp(large_img, width + 0, height + 0, num_thread);
+    stopTimer(&timer);
+    write_pgm("large_sharpen_open.pgm", result_img, width[0], height[0]);
+    free_image(result_img, height[0]);
+    printf("Done writing\n");
     stopTimer(&timer);
 
     printf("Medium file\n");
     startTimer(&timer);
     printf("Blur operation\n");
-    write_pgm("medium_blur_open.pgm",   blur_openmp(med_img, width + 1, height + 1), width[1], height[1]);
+    result_img = blur_openmp(med_img, width + 1, height + 1, num_thread);
+    stopTimer(&timer);
+    write_pgm("medium_blur_open.pgm", result_img, width[1], height[1]);
+    free_image(result_img, height[1]);
+    printf("Done writing\n");
     stopTimer(&timer);
 
     startTimer(&timer);
     printf("Sharpen operation\n");
-    write_pgm("medium_sharpen_open.pgm", sharpen_openmp(med_img, width + 1, height + 1), width[1], height[1]);
+    result_img = sharpen_openmp(med_img, width + 1, height + 1, num_thread);
+    stopTimer(&timer);
+    write_pgm("medium_sharpen_open.pgm", result_img, width[1], height[1]);
+    free_image(result_img, height[1]);
+    printf("Done writing\n");
     stopTimer(&timer);
 
     printf("Small file\n");
+    printf("Blur operation\n");
     startTimer(&timer);
-    write_pgm("small_blur_open.pgm", blur_openmp(small_img, width + 2, height + 2), width[2], height[2]);
+    result_img = blur_openmp(small_img, width + 2, height + 2, num_thread);
+    stopTimer(&timer);
+    write_pgm("small_blur_open.pgm", result_img, width[2], height[2]);
+    free_image(result_img, height[2]);
+    printf("Done writing\n");
     stopTimer(&timer);
 
     startTimer(&timer);
-    printf("Blur operation\n");
-    write_pgm("small_sharpen_open.pgm", sharpen_openmp(small_img, width + 2, height + 2), width[2], height[2]);
+    result_img = sharpen_openmp(small_img, width + 2, height + 2, num_thread);
     printf("Sharpen operation\n");
+    write_pgm("small_sharpen_open.pgm", result_img, width[2], height[2]);
+    free_image(result_img, height[2]);
+    stopTimer(&timer);
+    printf("Done writing\n");
+    stopTimer(&timer);
+
+
+    printf("pthread ----\n");
+    printf("Large file\n");
+    startTimer(&timer);
+    printf("Blur operation\n");
+    result_img = blur_pthread(large_img, width + 0, height + 0, num_thread);
+    stopTimer(&timer);
+    write_pgm("large_blur_pthread.pgm", result_img, width[0], height[0]);
+    free_image(result_img, height[0]);
+    printf("Done writing\n");
+    stopTimer(&timer);
+
+    startTimer(&timer);
+    printf("Sharpen operation\n");
+    result_img = sharpen_pthread(large_img, width + 0, height + 0, num_thread);
+    stopTimer(&timer);
+    write_pgm("large_sharpen_pthread.pgm", result_img, width[0], height[0]);
+    free_image(result_img, height[0]);
+    printf("Done writing\n");
+    stopTimer(&timer);
+
+    printf("Medium file\n");
+    startTimer(&timer);
+    printf("Blur operation\n");
+    result_img = blur_pthread(med_img, width + 1, height + 1, num_thread);
+    stopTimer(&timer);
+    write_pgm("medium_blur_pthread.pgm", result_img, width[1], height[1]);
+    free_image(result_img, height[1]);
+    printf("Done writing\n");
+    stopTimer(&timer);
+
+    startTimer(&timer);
+    printf("Sharpen operation\n");
+    result_img = sharpen_pthread(med_img, width + 1, height + 1, num_thread);
+    stopTimer(&timer);
+    write_pgm("medium_sharpen_pthread.pgm", result_img, width[1], height[1]);
+    free_image(result_img, height[1]);
+    printf("Done writing\n");
+    stopTimer(&timer);
+
+    printf("Small file\n");
+    printf("Blur operation\n");
+    startTimer(&timer);
+    result_img = blur_pthread(small_img, width + 2, height + 2, num_thread);
+    stopTimer(&timer);
+    write_pgm("small_blur_pthread.pgm", result_img, width[2], height[2]);
+    free_image(result_img, height[2]);
+    printf("Done writing\n");
+    stopTimer(&timer);
+
+    startTimer(&timer);
+    result_img = sharpen_pthread(small_img, width + 2, height + 2, num_thread);
+    printf("Sharpen operation\n");
+    write_pgm("small_sharpen_pthread.pgm", result_img, width[2], height[2]);
+    free_image(result_img, height[2]);
+    stopTimer(&timer);
+    printf("Done writing\n");
     stopTimer(&timer);
 
     return 0;
 }
 
-void startTimer(clock_t *time) {
-    *time = clock();
+void startTimer(double *time) {
+    *time = omp_get_wtime();
 }
-void stopTimer(clock_t *time) {
-    printf("Time elapsed : %f s\n", (clock() - *time * 1.0) / CLOCKS_PER_SEC);
+void stopTimer(double *time) {
+    printf("Time elapsed : %f s\n", omp_get_wtime() - *time);
 }
