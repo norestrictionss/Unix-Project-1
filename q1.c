@@ -75,17 +75,24 @@ void *waiters_thread(void *params){
         int current_customer = customer_queue.arr[customer_queue.front];
         
         if(current_customer!=0){
+            int current_waiter = my_params->current_waiter;
+            printf("Waiter %d takes order from Customer %d\n", current_waiter, current_customer);
             kitchen_queue.arr[kitchen_queue.rear] = current_customer;
             kitchen_queue.rear++;
             customer_queue.front++;
             pthread_mutex_unlock(&lock2);
-            int current_waiter = my_params->current_waiter;
-            printf("Waiter %d takes order from Customer %d\n", current_waiter, current_customer);
-            while(ready_meals_queue.arr[ready_meals_queue.front]!=current_customer);
-            printf("Waiter %d serves meal to Customer %d\n", current_waiter, current_customer);
+            sem_wait(&cooks_sem);
             pthread_mutex_lock(&lock5);
+            current_customer = ready_meals_queue.arr[ready_meals_queue.front];
+            while(remaining_customers!=0 && current_customer==0)
+                current_customer = ready_meals_queue.arr[ready_meals_queue.front];
+            sleep(1);
+            printf("Waiter %d serves meal to Customer %d\n", current_waiter, current_customer);
             ready_meals_queue.front++;
+            
+            
             pthread_mutex_unlock(&lock5);
+            
             
         }
         else pthread_mutex_unlock(&lock2);
@@ -102,9 +109,10 @@ void *cooks_thread(void *params){
         if(current_customer!=0){
             kitchen_queue.front++;
             printf("Cook %d is preparing order for Customer %d\n", current_cooks, current_customer);
-            sleep(1);
+            
             ready_meals_queue.arr[ready_meals_queue.rear] = current_customer;
             ready_meals_queue.rear++;
+            sem_post(&cooks_sem);
         }
         pthread_mutex_unlock(&lock3);
     }
