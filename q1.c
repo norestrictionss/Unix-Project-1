@@ -81,7 +81,7 @@ void *waiters_thread(void *params){
             kitchen_queue.rear++;
             customer_queue.front++;
             pthread_mutex_unlock(&lock2);
-            sem_wait(&cooks_sem);
+            // sem_wait(&cooks_sem);
             pthread_mutex_lock(&lock5);
             current_customer = ready_meals_queue.arr[ready_meals_queue.front];
             while(remaining_customers!=0 && current_customer==0)
@@ -112,7 +112,7 @@ void *cooks_thread(void *params){
             
             ready_meals_queue.arr[ready_meals_queue.rear] = current_customer;
             ready_meals_queue.rear++;
-            sem_post(&cooks_sem);
+            // sem_post(&cooks_sem);
         }
         pthread_mutex_unlock(&lock3);
     }
